@@ -2,6 +2,8 @@ const express = require('express')
 const app = express()
 const port = 3001
 
+app.use(express.json())
+
 
 let entries = [
     {
@@ -52,6 +54,44 @@ app.delete('/api/persons/:id', (req, res) => {
     entries = entries.filter(entry => entry.id !== id)
 
     res.status(204).end()
+})
+
+app.post('/api/persons', (req, res) => {
+    const body = req.body
+    
+    if (!body) {
+        return res.status(400).json({
+            error: 'content missing'
+        })
+    }
+
+    if (!body.name) {
+        return res.status(400).json({
+            error: 'name missing'
+        })
+    }
+
+    if (!body.number) {
+        return res.status(400).json({
+            error: 'number missing'
+        })
+    }
+
+    if (entries.find(e => e.name === body.name)) {
+        return res.status(400).json({
+            error: 'name must be unique'
+        })
+    }
+
+    const newEntry = {
+        id: Math.floor(Math.random() * 100000),
+        name: body.name,
+        number: body.number
+    }
+
+    entries = entries.concat(newEntry)
+
+    res.json(newEntry)
 })
 
 
